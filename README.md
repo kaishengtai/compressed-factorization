@@ -4,6 +4,13 @@ The code in this repository complements the ICML 2019 paper ["Compressed Factori
 
 ---
 
+## Install
+
+```
+# for python3
+pip install --user -r requirements.txt 
+```
+
 ## Citation
 
 If you've found this repository useful in your own work, please consider citing our paper:

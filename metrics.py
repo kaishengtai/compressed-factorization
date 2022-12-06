@@ -38,21 +38,22 @@ def l2_similarity(x, y):
 def _match_factors(X, Y, similarity, match_rows=False):
     """Compute a maximum bipartite matching between the rows of X and rows of Y with
     the given similarity function. If match_rows is False, matches columns instead.
-    
+
     Returns:
-        Dict containing match and result. match[i] is the row (column, if match_rows is True) 
-        of Y matched to row i of X, and result is the similarity score corresponding 
+        Dict containing match and result. match[i] is the row (column, if match_rows is True)
+        of Y matched to row i of X, and result is the similarity score corresponding
         to this matching.
     """
     if not match_rows:
         X, Y = X.T, Y.T
-    
+
     assert(X.shape[0] == Y.shape[0])
     k = X.shape[0]
-    
+
     # construct optimization problem
     sims = np.array([[similarity(X[i], Y[j]) for j in range(k)] for i in range(k)])
-    x = cvx.Variable(k, k)
+    #x = cvx.Variable(k, k)
+    x = cvx.Variable((k, k)) # adate to cvxpy==1.2.2
     z = 0
     for i in range(k):
         for j in range(k):
@@ -60,10 +61,13 @@ def _match_factors(X, Y, similarity, match_rows=False):
     obj = cvx.Maximize(z)
     constraints = []
     for i in range(k):
-        constraints.append(cvx.sum_entries(x[i, :]) == 1)
-        constraints.append(cvx.sum_entries(x[:, i]) == 1)
+        # constraints.append(cvx.sum_entries(x[i, :]) == 1)
+        # constraints.append(cvx.sum_entries(x[:, i]) == 1)
+        # adate to cvxpy==1.2.2
+        constraints.append(cvx.sum(x[i, :]) == 1)
+        constraints.append(cvx.sum(x[:, i]) == 1)
     constraints.append(x >= 0)
-    
+
     # solve problem and extract solution
     prob = cvx.Problem(obj, constraints)
     result = prob.solve()
